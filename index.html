@@ -253,8 +253,262 @@
 </div>
 
 <script>
-const IMG_BASE = 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises';
-const JSON_URL = 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/dist/exercises.json';
+// Original SVG line drawings for each exercise (two positions for animation)
+const EXERCISE_SVGS = {
+  Bodyweight_Squat: [
+    // Position A: Standing
+    `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <style>line,circle,path{stroke:#888;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}</style>
+      <circle cx="100" cy="38" r="12"/>
+      <line x1="100" y1="50" x2="100" y2="110"/>
+      <line x1="100" y1="70" x2="70" y2="90"/>
+      <line x1="100" y1="70" x2="130" y2="90"/>
+      <line x1="100" y1="110" x2="85" y2="155"/>
+      <line x1="85" y1="155" x2="85" y2="185"/>
+      <line x1="100" y1="110" x2="115" y2="155"/>
+      <line x1="115" y1="155" x2="115" y2="185"/>
+      <text x="100" y="198" text-anchor="middle" fill="#555" font-size="10" font-family="monospace">STAND</text>
+    </svg>`,
+    // Position B: Squat
+    `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <style>line,circle,path{stroke:#888;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}</style>
+      <circle cx="100" cy="68" r="12"/>
+      <line x1="100" y1="80" x2="95" y2="125"/>
+      <line x1="100" y1="95" x2="68" y2="108"/>
+      <line x1="100" y1="95" x2="132" y2="108"/>
+      <line x1="95" y1="125" x2="70" y2="140"/>
+      <line x1="70" y1="140" x2="68" y2="185"/>
+      <line x1="95" y1="125" x2="120" y2="140"/>
+      <line x1="120" y1="140" x2="122" y2="185"/>
+      <text x="100" y="198" text-anchor="middle" fill="#555" font-size="10" font-family="monospace">SQUAT</text>
+    </svg>`
+  ],
+  Band_Pull_Apart: [
+    // Position A: Arms forward, band stretched between hands
+    `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <style>line,circle{stroke:#888;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}</style>
+      <circle cx="100" cy="45" r="12"/>
+      <line x1="100" y1="57" x2="100" y2="120"/>
+      <line x1="100" y1="75" x2="75" y2="80"/>
+      <line x1="75" y1="80" x2="70" y2="65"/>
+      <line x1="100" y1="75" x2="125" y2="80"/>
+      <line x1="125" y1="80" x2="130" y2="65"/>
+      <line x1="70" y1="65" x2="130" y2="65" stroke="#f0c040" stroke-dasharray="4 3"/>
+      <line x1="100" y1="120" x2="85" y2="160"/>
+      <line x1="85" y1="160" x2="85" y2="190"/>
+      <line x1="100" y1="120" x2="115" y2="160"/>
+      <line x1="115" y1="160" x2="115" y2="190"/>
+      <text x="100" y="198" text-anchor="middle" fill="#555" font-size="10" font-family="monospace">TOGETHER</text>
+    </svg>`,
+    // Position B: Arms spread wide
+    `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <style>line,circle{stroke:#888;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}</style>
+      <circle cx="100" cy="45" r="12"/>
+      <line x1="100" y1="57" x2="100" y2="120"/>
+      <line x1="100" y1="75" x2="65" y2="80"/>
+      <line x1="65" y1="80" x2="35" y2="75"/>
+      <line x1="100" y1="75" x2="135" y2="80"/>
+      <line x1="135" y1="80" x2="165" y2="75"/>
+      <line x1="35" y1="75" x2="165" y2="75" stroke="#f0c040" stroke-dasharray="4 3"/>
+      <line x1="100" y1="120" x2="85" y2="160"/>
+      <line x1="85" y1="160" x2="85" y2="190"/>
+      <line x1="100" y1="120" x2="115" y2="160"/>
+      <line x1="115" y1="160" x2="115" y2="190"/>
+      <text x="100" y="198" text-anchor="middle" fill="#555" font-size="10" font-family="monospace">APART</text>
+    </svg>`
+  ],
+  Goblet_Squat: [
+    // Position A: Standing holding dumbbell at chest
+    `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <style>line,circle,rect{stroke:#888;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}</style>
+      <circle cx="100" cy="35" r="12"/>
+      <line x1="100" y1="47" x2="100" y2="110"/>
+      <line x1="100" y1="68" x2="82" y2="78"/>
+      <line x1="82" y1="78" x2="88" y2="88"/>
+      <line x1="100" y1="68" x2="118" y2="78"/>
+      <line x1="118" y1="78" x2="112" y2="88"/>
+      <rect x="90" y="80" width="20" height="14" rx="3" stroke="#f0c040"/>
+      <line x1="100" y1="110" x2="85" y2="152"/>
+      <line x1="85" y1="152" x2="85" y2="185"/>
+      <line x1="100" y1="110" x2="115" y2="152"/>
+      <line x1="115" y1="152" x2="115" y2="185"/>
+      <text x="100" y="198" text-anchor="middle" fill="#555" font-size="10" font-family="monospace">STAND</text>
+    </svg>`,
+    // Position B: Squat holding dumbbell
+    `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <style>line,circle,rect{stroke:#888;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}</style>
+      <circle cx="100" cy="62" r="12"/>
+      <line x1="100" y1="74" x2="97" y2="122"/>
+      <line x1="100" y1="90" x2="82" y2="100"/>
+      <line x1="82" y1="100" x2="88" y2="112"/>
+      <line x1="100" y1="90" x2="118" y2="100"/>
+      <line x1="118" y1="100" x2="112" y2="112"/>
+      <rect x="90" y="104" width="20" height="14" rx="3" stroke="#f0c040"/>
+      <line x1="97" y1="122" x2="72" y2="142"/>
+      <line x1="72" y1="142" x2="70" y2="185"/>
+      <line x1="97" y1="122" x2="122" y2="142"/>
+      <line x1="122" y1="142" x2="124" y2="185"/>
+      <text x="100" y="198" text-anchor="middle" fill="#555" font-size="10" font-family="monospace">SQUAT</text>
+    </svg>`
+  ],
+  Romanian_Deadlift_With_Dumbbells: [
+    // Position A: Standing with dumbbells at sides
+    `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <style>line,circle,rect{stroke:#888;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}</style>
+      <circle cx="100" cy="35" r="12"/>
+      <line x1="100" y1="47" x2="100" y2="110"/>
+      <line x1="100" y1="68" x2="75" y2="100"/>
+      <line x1="100" y1="68" x2="125" y2="100"/>
+      <rect x="67" y="96" width="12" height="16" rx="2" stroke="#f0c040"/>
+      <rect x="121" y="96" width="12" height="16" rx="2" stroke="#f0c040"/>
+      <line x1="100" y1="110" x2="85" y2="155"/>
+      <line x1="85" y1="155" x2="85" y2="185"/>
+      <line x1="100" y1="110" x2="115" y2="155"/>
+      <line x1="115" y1="155" x2="115" y2="185"/>
+      <text x="100" y="198" text-anchor="middle" fill="#555" font-size="10" font-family="monospace">STAND</text>
+    </svg>`,
+    // Position B: Hip hinge, dumbbells at knee level
+    `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <style>line,circle,rect{stroke:#888;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}</style>
+      <circle cx="130" cy="55" r="12"/>
+      <line x1="125" y1="65" x2="95" y2="100"/>
+      <line x1="115" y1="78" x2="100" y2="108"/>
+      <line x1="115" y1="78" x2="130" y2="108"/>
+      <rect x="93" y="106" width="12" height="16" rx="2" stroke="#f0c040"/>
+      <rect x="124" y="106" width="12" height="16" rx="2" stroke="#f0c040"/>
+      <line x1="95" y1="100" x2="80" y2="140"/>
+      <line x1="80" y1="140" x2="82" y2="185"/>
+      <line x1="95" y1="100" x2="110" y2="140"/>
+      <line x1="110" y1="140" x2="112" y2="185"/>
+      <text x="100" y="198" text-anchor="middle" fill="#555" font-size="10" font-family="monospace">HINGE</text>
+    </svg>`
+  ],
+  Pushups: [
+    // Position A: High plank
+    `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <style>line,circle{stroke:#888;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}</style>
+      <circle cx="160" cy="80" r="10"/>
+      <line x1="155" y1="88" x2="90" y2="95"/>
+      <line x1="140" y1="90" x2="148" y2="120"/>
+      <line x1="148" y1="120" x2="155" y2="150"/>
+      <line x1="90" y1="95" x2="80" y2="150"/>
+      <line x1="80" y1="150" x2="65" y2="150"/>
+      <line x1="90" y1="95" x2="95" y2="150"/>
+      <line x1="95" y1="150" x2="80" y2="150"/>
+      <text x="100" y="175" text-anchor="middle" fill="#555" font-size="10" font-family="monospace">UP</text>
+    </svg>`,
+    // Position B: Lowered
+    `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <style>line,circle{stroke:#888;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}</style>
+      <circle cx="158" cy="108" r="10"/>
+      <line x1="152" y1="114" x2="85" y2="118"/>
+      <line x1="138" y1="115" x2="155" y2="130"/>
+      <line x1="155" y1="130" x2="155" y2="150"/>
+      <line x1="85" y1="118" x2="78" y2="150"/>
+      <line x1="78" y1="150" x2="63" y2="150"/>
+      <line x1="85" y1="118" x2="95" y2="150"/>
+      <line x1="95" y1="150" x2="80" y2="150"/>
+      <text x="100" y="175" text-anchor="middle" fill="#555" font-size="10" font-family="monospace">DOWN</text>
+    </svg>`
+  ],
+  'Bent_Over_Two-Dumbbell_Row': [
+    // Position A: Bent over, arms hanging
+    `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <style>line,circle,rect{stroke:#888;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}</style>
+      <circle cx="135" cy="52" r="12"/>
+      <line x1="130" y1="62" x2="90" y2="95"/>
+      <line x1="115" y1="75" x2="105" y2="115"/>
+      <line x1="115" y1="75" x2="125" y2="115"/>
+      <rect x="99" y="113" width="10" height="14" rx="2" stroke="#f0c040"/>
+      <rect x="121" y="113" width="10" height="14" rx="2" stroke="#f0c040"/>
+      <line x1="90" y1="95" x2="78" y2="145"/>
+      <line x1="78" y1="145" x2="78" y2="185"/>
+      <line x1="90" y1="95" x2="108" y2="145"/>
+      <line x1="108" y1="145" x2="110" y2="185"/>
+      <text x="100" y="198" text-anchor="middle" fill="#555" font-size="10" font-family="monospace">EXTEND</text>
+    </svg>`,
+    // Position B: Bent over, arms pulled up
+    `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <style>line,circle,rect{stroke:#888;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}</style>
+      <circle cx="135" cy="52" r="12"/>
+      <line x1="130" y1="62" x2="90" y2="95"/>
+      <line x1="115" y1="75" x2="105" y2="85"/>
+      <line x1="105" y1="85" x2="102" y2="98"/>
+      <line x1="115" y1="75" x2="128" y2="85"/>
+      <line x1="128" y1="85" x2="128" y2="98"/>
+      <rect x="96" y="92" width="10" height="14" rx="2" stroke="#f0c040"/>
+      <rect x="124" y="92" width="10" height="14" rx="2" stroke="#f0c040"/>
+      <line x1="90" y1="95" x2="78" y2="145"/>
+      <line x1="78" y1="145" x2="78" y2="185"/>
+      <line x1="90" y1="95" x2="108" y2="145"/>
+      <line x1="108" y1="145" x2="110" y2="185"/>
+      <text x="100" y="198" text-anchor="middle" fill="#555" font-size="10" font-family="monospace">PULL</text>
+    </svg>`
+  ],
+  Farmers_Walk: [
+    // Position A: Walking, left foot forward
+    `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <style>line,circle,rect{stroke:#888;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}</style>
+      <circle cx="100" cy="32" r="12"/>
+      <line x1="100" y1="44" x2="100" y2="105"/>
+      <line x1="100" y1="62" x2="72" y2="100"/>
+      <line x1="100" y1="62" x2="128" y2="100"/>
+      <rect x="64" y="96" width="12" height="16" rx="2" stroke="#f0c040"/>
+      <rect x="124" y="96" width="12" height="16" rx="2" stroke="#f0c040"/>
+      <line x1="100" y1="105" x2="78" y2="148"/>
+      <line x1="78" y1="148" x2="70" y2="185"/>
+      <line x1="100" y1="105" x2="118" y2="148"/>
+      <line x1="118" y1="148" x2="125" y2="185"/>
+      <text x="100" y="198" text-anchor="middle" fill="#555" font-size="10" font-family="monospace">WALK</text>
+    </svg>`,
+    // Position B: Walking, right foot forward
+    `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <style>line,circle,rect{stroke:#888;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}</style>
+      <circle cx="100" cy="32" r="12"/>
+      <line x1="100" y1="44" x2="100" y2="105"/>
+      <line x1="100" y1="62" x2="72" y2="100"/>
+      <line x1="100" y1="62" x2="128" y2="100"/>
+      <rect x="64" y="96" width="12" height="16" rx="2" stroke="#f0c040"/>
+      <rect x="124" y="96" width="12" height="16" rx="2" stroke="#f0c040"/>
+      <line x1="100" y1="105" x2="82" y2="148"/>
+      <line x1="82" y1="148" x2="88" y2="185"/>
+      <line x1="100" y1="105" x2="122" y2="148"/>
+      <line x1="122" y1="148" x2="115" y2="185"/>
+      <text x="100" y="198" text-anchor="middle" fill="#555" font-size="10" font-family="monospace">WALK</text>
+    </svg>`
+  ],
+  Dead_Bug: [
+    // Position A: Lying, right arm up + left leg extended
+    `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <style>line,circle{stroke:#888;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}</style>
+      <line x1="20" y1="145" x2="180" y2="145" stroke="#333" stroke-width="1"/>
+      <circle cx="40" cy="130" r="10"/>
+      <line x1="50" y1="130" x2="120" y2="132"/>
+      <line x1="70" y1="130" x2="60" y2="100"/>
+      <line x1="70" y1="130" x2="90" y2="115"/>
+      <line x1="120" y1="132" x2="155" y2="115"/>
+      <line x1="155" y1="115" x2="170" y2="100"/>
+      <line x1="120" y1="132" x2="130" y2="115"/>
+      <line x1="130" y1="115" x2="128" y2="100"/>
+      <text x="100" y="175" text-anchor="middle" fill="#555" font-size="10" font-family="monospace">EXTEND R</text>
+    </svg>`,
+    // Position B: Lying, left arm up + right leg extended
+    `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <style>line,circle{stroke:#888;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}</style>
+      <line x1="20" y1="145" x2="180" y2="145" stroke="#333" stroke-width="1"/>
+      <circle cx="40" cy="130" r="10"/>
+      <line x1="50" y1="130" x2="120" y2="132"/>
+      <line x1="70" y1="130" x2="80" y2="115"/>
+      <line x1="80" y1="115" x2="82" y2="100"/>
+      <line x1="70" y1="130" x2="50" y2="100"/>
+      <line x1="120" y1="132" x2="140" y2="115"/>
+      <line x1="140" y1="115" x2="138" y2="100"/>
+      <line x1="120" y1="132" x2="160" y2="115"/>
+      <line x1="160" y1="115" x2="175" y2="100"/>
+      <text x="100" y="175" text-anchor="middle" fill="#555" font-size="10" font-family="monospace">EXTEND L</text>
+    </svg>`
+  ]
+};
 
 // Tab switching
 document.getElementById('tabs').addEventListener('click', (e) => {
@@ -267,43 +521,20 @@ document.getElementById('tabs').addEventListener('click', (e) => {
   window.scrollTo({ top: 0, behavior: 'instant' });
 });
 
-// Load exercise images
-async function init() {
-  let exercises = [];
-  try {
-    const resp = await fetch(JSON_URL);
-    exercises = await resp.json();
-  } catch (e) {
-    console.warn('Could not load exercise DB, trying direct image paths');
-  }
-
-  const byId = {};
-  const byNameLower = {};
-  exercises.forEach(ex => {
-    byId[ex.id] = ex;
-    byNameLower[ex.name.toLowerCase().replace(/[^a-z0-9]/g, '_')] = ex;
-  });
-
+// Inject SVG illustrations into exercise cards
+function init() {
   document.querySelectorAll('.exercise-card[data-db]').forEach(card => {
     const key = card.dataset.db;
-    let matched = byId[key];
+    const svgs = EXERCISE_SVGS[key];
 
-    // Fuzzy: try variations
-    if (!matched) {
-      const searchTerms = key.replace(/_/g, ' ').toLowerCase();
-      matched = exercises.find(ex => {
-        const n = ex.name.toLowerCase();
-        return n === searchTerms || n.includes(searchTerms) || searchTerms.includes(n);
-      });
-    }
-
-    if (matched && matched.images && matched.images.length >= 1) {
-      const url0 = `${IMG_BASE}/${matched.images[0]}`;
-      const url1 = matched.images.length >= 2 ? `${IMG_BASE}/${matched.images[1]}` : null;
-      injectImg(card, url0, url1);
+    if (svgs && svgs.length >= 1) {
+      injectSvg(card, svgs);
     } else {
-      // Try direct path as last resort
-      injectImg(card, `${IMG_BASE}/${key}/0.jpg`, `${IMG_BASE}/${key}/1.jpg`);
+      // Fallback: show a placeholder
+      const wrap = document.createElement('div');
+      wrap.className = 'exercise-img-wrap';
+      wrap.innerHTML = '<div class="img-loading">no image</div>';
+      card.insertBefore(wrap, card.firstChild);
     }
   });
 
@@ -311,31 +542,33 @@ async function init() {
   setTimeout(() => document.getElementById('loader').classList.add('done'), 300);
 }
 
-function injectImg(card, url0, url1) {
+function injectSvg(card, svgs) {
   const wrap = document.createElement('div');
   wrap.className = 'exercise-img-wrap';
-  wrap.innerHTML = '<div class="img-loading">loading…</div>';
+  wrap.style.background = '#111';
+  wrap.style.display = 'flex';
+  wrap.style.alignItems = 'center';
+  wrap.style.justifyContent = 'center';
 
-  const imgA = new Image();
-  imgA.src = url0;
-  imgA.alt = 'Exercise position A';
-  imgA.style.opacity = '1';
-  imgA.onload = () => { wrap.querySelector('.img-loading')?.remove(); };
-  imgA.onerror = () => { wrap.innerHTML = '<div class="img-loading">no image</div>'; };
-  wrap.appendChild(imgA);
+  // Create container for SVG frames
+  const frameA = document.createElement('div');
+  frameA.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;transition:opacity 0.4s ease;padding:8px;';
+  frameA.innerHTML = svgs[0];
+  frameA.querySelector('svg').style.cssText = 'width:100%;height:100%;';
+  wrap.appendChild(frameA);
 
-  if (url1) {
-    const imgB = new Image();
-    imgB.src = url1;
-    imgB.alt = 'Exercise position B';
-    imgB.style.opacity = '0';
-    wrap.appendChild(imgB);
+  if (svgs.length >= 2) {
+    const frameB = document.createElement('div');
+    frameB.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;transition:opacity 0.4s ease;opacity:0;padding:8px;';
+    frameB.innerHTML = svgs[1];
+    frameB.querySelector('svg').style.cssText = 'width:100%;height:100%;';
+    wrap.appendChild(frameB);
 
     let frame = 0;
     setInterval(() => {
       frame = 1 - frame;
-      imgA.style.opacity = frame === 0 ? '1' : '0';
-      imgB.style.opacity = frame === 1 ? '1' : '0';
+      frameA.style.opacity = frame === 0 ? '1' : '0';
+      frameB.style.opacity = frame === 1 ? '1' : '0';
     }, 1200);
   }
 
