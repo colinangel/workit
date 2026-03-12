@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<title>Functional Strength Routine</title>
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0a0a0a">
+
+<!-- iOS home screen -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Workout">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Libre+Baskerville:wght@400;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg: #0a0a0a; --surface: #111; --border: #222;
+    --text: #e8e4d9; --muted: #777; --dim: #555;
+    --accent: #f0c040; --accent-bg: #1a1800;
+    --green: #7ecaaa; --green-bg: #0d1a14; --green-border: #1a3a2a;
+    --blue: #8ab4f8; --orange: #e88a6a;
+    --red: #e85050; --red-bg: #1a0a0a; --red-border: #3a1a1a; --red-text: #cc8888;
+    --mono: 'JetBrains Mono', monospace;
+    --display: 'Space Mono', monospace;
+    --serif: 'Libre Baskerville', Georgia, serif;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { background: var(--bg); }
+  body {
+    background: var(--bg); color: var(--text); font-family: var(--mono);
+    min-height: 100vh; min-height: 100dvh;
+    padding-top: var(--safe-top);
+    padding-bottom: var(--safe-bottom);
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  .container { max-width: 720px; margin: 0 auto; padding: 0 20px 100px; }
+
+  /* Header */
+  .header { padding: 24px 0 0; }
+  .header-freq { font-family: var(--display); font-size: 11px; color: var(--dim); text-transform: uppercase; letter-spacing: 4px; margin-bottom: 8px; }
+  .header-title { font-family: var(--serif); font-size: 28px; font-weight: 700; line-height: 1.2; }
+  .header-sub { font-family: var(--serif); font-size: 18px; color: var(--accent); margin-top: 4px; }
+  .header-equip { margin-top: 10px; font-size: 12px; color: #666; }
+
+  /* Tabs — sticky bottom bar on mobile */
+  .tabs {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    display: flex; gap: 2px;
+    background: #0a0a0aee; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid var(--border);
+    padding: 8px 8px calc(8px + var(--safe-bottom));
+    z-index: 100;
+  }
+  .tab {
+    flex: 1; padding: 10px 4px; border-radius: 8px; border: none;
+    background: transparent; color: #555;
+    font-family: var(--display); font-size: 10px; font-weight: 700;
+    cursor: pointer; text-transform: uppercase; letter-spacing: 0.3px;
+    transition: all 0.2s; text-align: center; line-height: 1.3;
+  }
+  .tab:active { transform: scale(0.95); }
+  .tab.active { background: var(--accent-bg); color: var(--accent); }
+
+  /* Sections */
+  .section { display: none; }
+  .section.active { display: block; animation: fadeIn 0.2s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  .section-sub { font-family: var(--display); font-size: 12px; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 4px; }
+  .section-title { font-family: var(--serif); font-size: 24px; font-weight: 700; line-height: 1.2; margin-bottom: 14px; }
+  .section-desc { font-size: 13px; color: var(--muted); margin-bottom: 18px; line-height: 1.6; }
+
+  /* Stats */
+  .stats { display: flex; gap: 10px; margin-bottom: 18px; }
+  .stat { flex: 1; padding: 10px 12px; background: var(--surface); border-radius: 8px; border: 1px solid var(--border); text-align: center; }
+  .stat-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+  .stat-value { font-size: 20px; font-weight: 700; color: var(--accent); }
+
+  /* Tags */
+  .tags { display: flex; gap: 6px; margin-bottom: 18px; flex-wrap: wrap; }
+  .tag { padding: 5px 10px; border-radius: 20px; font-size: 11px; }
+  .tag-green { background: var(--green-bg); border: 1px solid var(--green-border); color: var(--green); }
+
+  /* Exercise cards */
+  .exercise-list { display: flex; flex-direction: column; gap: 10px; }
+  .exercise-card {
+    display: flex; gap: 14px; padding: 14px; background: var(--surface);
+    border-radius: 10px; border: 1px solid var(--border); align-items: flex-start;
+  }
+
+  .exercise-img-wrap {
+    position: relative; width: 140px; height: 140px; border-radius: 8px;
+    overflow: hidden; background: #1a1a1a; flex-shrink: 0;
+  }
+  .exercise-img-wrap img {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: cover; transition: opacity 0.4s ease;
+  }
+  .exercise-img-wrap .img-loading {
+    position: absolute; inset: 0; display: flex; align-items: center;
+    justify-content: center; color: var(--dim); font-size: 11px;
+  }
+
+  .cue-box {
+    width: 140px; min-height: 140px; border-radius: 8px;
+    background: linear-gradient(135deg, #1a1a1a, #0d0d0d);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; border: 1px dashed #333; padding: 10px;
+  }
+  .cue-text { text-align: center; color: #666; font-size: 11px; line-height: 1.5; }
+
+  .exercise-info { flex: 1; min-width: 0; }
+  .exercise-name { font-family: var(--display); font-size: 14px; font-weight: 700; margin-bottom: 4px; line-height: 1.3; }
+  .exercise-reps { font-size: 20px; font-weight: 700; color: var(--accent); margin-bottom: 6px; }
+  .exercise-equip { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+  .exercise-note { margin-top: 6px; font-size: 11px; color: #888; font-style: italic; }
+
+  /* Info blocks */
+  .info-block { background: var(--surface); border-radius: 10px; border: 1px solid var(--border); padding: 16px; margin-bottom: 10px; }
+  .info-title { font-family: var(--display); font-size: 13px; font-weight: 700; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+  .info-item { font-size: 13px; color: #bbb; padding: 5px 0; line-height: 1.5; }
+  .info-item + .info-item { border-top: 1px solid #1a1a1a; }
+
+  .warning-block { background: var(--red-bg); border-radius: 10px; border: 1px solid var(--red-border); padding: 16px; margin-top: 20px; }
+  .warning-title { font-family: var(--display); font-size: 13px; font-weight: 700; color: var(--red); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+  .warning-item { font-size: 13px; color: var(--red-text); padding: 5px 0; line-height: 1.5; }
+  .warning-item + .warning-item { border-top: 1px solid #1a1111; }
+
+  /* Loading overlay */
+  .loader { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 200; transition: opacity 0.3s; }
+  .loader.done { opacity: 0; pointer-events: none; }
+  .loader-text { font-family: var(--display); font-size: 12px; color: var(--dim); text-transform: uppercase; letter-spacing: 3px; }
+
+  @media (max-width: 480px) {
+    .exercise-card { flex-direction: column; align-items: stretch; }
+    .exercise-img-wrap, .cue-box { width: 100%; height: 200px; }
+    .exercise-info { text-align: left; }
+  }
+</style>
+</head>
+<body>
+
+<div class="loader" id="loader"><div class="loader-text">Loading routine…</div></div>
+
+<div class="container">
+  <div class="header">
+    <div class="header-freq">3× per week + daily reset</div>
+    <h1 class="header-title">Functional Strength</h1>
+    <div class="header-sub">+ Neck &amp; Shoulder Routine</div>
+    <div class="header-equip">Adjustable dumbbells · Resistance bands · Mat</div>
+  </div>
+
+  <!-- WARM-UP -->
+  <div class="section active" id="s-warmup">
+    <div class="section-sub" style="color:var(--accent)">5 minutes</div>
+    <div class="section-title">Warm-Up</div>
+    <div class="section-desc">Prepare the body for load. Move through each with intention.</div>
+    <div class="exercise-list">
+      <div class="exercise-card" data-manual>
+        <div class="cue-box"><div class="cue-text">Lie on back, legs at 90°. Inhale nose 4s, exhale 8s. Ribs expand laterally.</div></div>
+        <div class="exercise-info"><div class="exercise-name">90/90 Breathing</div><div class="exercise-reps">5 breaths</div><div class="exercise-equip">Mat</div></div>
+      </div>
+      <div class="exercise-card" data-manual>
+        <div class="cue-box"><div class="cue-text">All fours — inhale: drop belly, lift chest. Exhale: round spine, tuck chin. Slow.</div></div>
+        <div class="exercise-info"><div class="exercise-name">Cat–Cow</div><div class="exercise-reps">8 reps</div><div class="exercise-equip">Mat</div></div>
+      </div>
+      <div class="exercise-card" data-db="Bodyweight_Squat">
+        <div class="exercise-info"><div class="exercise-name">Bodyweight Squats</div><div class="exercise-reps">10</div><div class="exercise-equip">None</div></div>
+      </div>
+      <div class="exercise-card" data-db="Band_Pull_Apart">
+        <div class="exercise-info"><div class="exercise-name">Band Pull-Aparts</div><div class="exercise-reps">12</div><div class="exercise-equip">Resistance Band</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STRENGTH -->
+  <div class="section" id="s-strength">
+    <div class="section-sub" style="color:var(--accent)">Main workout</div>
+    <div class="section-title">Functional Strength</div>
+    <div class="stats">
+      <div class="stat"><div class="stat-label">Sets</div><div class="stat-value">3</div></div>
+      <div class="stat"><div class="stat-label">Rest</div><div class="stat-value">60–90s</div></div>
+      <div class="stat"><div class="stat-label">Days</div><div class="stat-value">M W F</div></div>
+    </div>
+    <div class="exercise-list">
+      <div class="exercise-card" data-db="Goblet_Squat"><div class="exercise-info"><div class="exercise-name">Goblet Squat</div><div class="exercise-reps">8–10</div><div class="exercise-equip">Dumbbell</div></div></div>
+      <div class="exercise-card" data-db="Romanian_Deadlift_With_Dumbbells"><div class="exercise-info"><div class="exercise-name">Romanian Deadlift</div><div class="exercise-reps">8–10</div><div class="exercise-equip">Dumbbells</div></div></div>
+      <div class="exercise-card" data-db="Pushups"><div class="exercise-info"><div class="exercise-name">Push-Ups</div><div class="exercise-reps">8</div><div class="exercise-equip">Floor / Incline</div><div class="exercise-note">Floor or incline variation</div></div></div>
+      <div class="exercise-card" data-db="Bent_Over_Two-Dumbbell_Row"><div class="exercise-info"><div class="exercise-name">Dumbbell / Band Rows</div><div class="exercise-reps">10</div><div class="exercise-equip">Dumbbell or Band</div></div></div>
+      <div class="exercise-card" data-db="Farmers_Walk"><div class="exercise-info"><div class="exercise-name">Farmer Carry</div><div class="exercise-reps">30–45 sec</div><div class="exercise-equip">Dumbbells</div></div></div>
+    </div>
+  </div>
+
+  <!-- NECK -->
+  <div class="section" id="s-neck">
+    <div class="section-sub" style="color:var(--green)">Daily or post-workout · 2 sets</div>
+    <div class="section-title">Neck &amp; Shoulder Tension</div>
+    <div class="tags">
+      <span class="tag tag-green">Strengthen mid-back</span>
+      <span class="tag tag-green">Stabilize shoulders</span>
+      <span class="tag tag-green">Reduce neck overuse</span>
+    </div>
+    <div class="exercise-list">
+      <div class="exercise-card" data-manual><div class="cue-box"><div class="cue-text">Stand tall. Pull chin straight back (double chin). Hold 3s. Don't tilt head.</div></div><div class="exercise-info"><div class="exercise-name">Chin Tucks</div><div class="exercise-reps">8</div><div class="exercise-equip">None</div></div></div>
+      <div class="exercise-card" data-manual><div class="cue-box"><div class="cue-text">Back flat to wall, arms in goal-post. Slide up keeping wall contact.</div></div><div class="exercise-info"><div class="exercise-name">Wall Slides</div><div class="exercise-reps">8</div><div class="exercise-equip">Wall</div></div></div>
+      <div class="exercise-card" data-manual><div class="cue-box"><div class="cue-text">Band at face height. Pull to face, elbows high/wide. Squeeze shoulder blades.</div></div><div class="exercise-info"><div class="exercise-name">Band Face Pulls</div><div class="exercise-reps">12</div><div class="exercise-equip">Resistance Band</div></div></div>
+      <div class="exercise-card" data-manual><div class="cue-box"><div class="cue-text">Elbow at side, 90°. Band at elbow height. Rotate forearm out. Keep elbow pinned.</div></div><div class="exercise-info"><div class="exercise-name">External Rotations</div><div class="exercise-reps">10 each</div><div class="exercise-equip">Resistance Band</div></div></div>
+      <div class="exercise-card" data-db="Dead_Bug"><div class="exercise-info"><div class="exercise-name">Dead Bug</div><div class="exercise-reps">8 each side</div><div class="exercise-equip">Mat</div></div></div>
+    </div>
+  </div>
+
+  <!-- RESET -->
+  <div class="section" id="s-reset">
+    <div class="section-sub" style="color:var(--blue)">Daily — optional</div>
+    <div class="section-title">5-Min Posture Reset</div>
+    <div class="section-desc">Counters forward head posture, upper-trap tension, desk strain.</div>
+    <div class="exercise-list">
+      <div class="exercise-card" data-manual><div class="cue-box"><div class="cue-text">Stand tall. Pull chin straight back. Hold 3s.</div></div><div class="exercise-info"><div class="exercise-name">Chin Tucks</div><div class="exercise-reps">8</div><div class="exercise-equip">None</div></div></div>
+      <div class="exercise-card" data-db="Band_Pull_Apart"><div class="exercise-info"><div class="exercise-name">Pull-Aparts</div><div class="exercise-reps">12</div><div class="exercise-equip">Resistance Band</div></div></div>
+      <div class="exercise-card" data-manual><div class="cue-box"><div class="cue-text">Back to wall, arms in goal-post. Slide up keeping wall contact.</div></div><div class="exercise-info"><div class="exercise-name">Wall Slides</div><div class="exercise-reps">8</div><div class="exercise-equip">Wall</div></div></div>
+      <div class="exercise-card" data-manual><div class="cue-box"><div class="cue-text">Lie on back. Inhale nose 4s, exhale 8s. 5 cycles.</div></div><div class="exercise-info"><div class="exercise-name">Deep Breathing</div><div class="exercise-reps">5 breaths</div><div class="exercise-equip">Mat</div></div></div>
+    </div>
+  </div>
+
+  <!-- GUIDE -->
+  <div class="section" id="s-guide">
+    <div class="section-sub" style="color:var(--orange)">Reference</div>
+    <div class="section-title">Form &amp; Progression</div>
+    <div class="info-block"><div class="info-title" style="color:var(--orange)">Squats &amp; Deadlifts</div><div class="info-item">Chest tall — eyes forward, sternum lifted</div><div class="info-item">Hips back — sit into the hinge, load posterior chain</div><div class="info-item">Neutral spine — no rounding, no overextension</div></div>
+    <div class="info-block"><div class="info-title" style="color:var(--orange)">Rows</div><div class="info-item">Pull elbows toward ribs — not out wide</div><div class="info-item">Squeeze shoulder blades at peak contraction</div></div>
+    <div class="info-block"><div class="info-title" style="color:var(--orange)">Carries</div><div class="info-item">Shoulders relaxed — not shrugged</div><div class="info-item">Rib cage down — don't flare</div><div class="info-item">Walk slowly — stability, not speed</div></div>
+    <div class="info-block" style="margin-top:20px"><div class="info-title" style="color:var(--accent)">Progression</div><div class="info-item">Increase weight when all reps complete with good form</div><div class="info-item">+5 lb every 2–3 weeks is typical</div><div class="info-item">Controlled movement over speed</div><div class="info-item">If form breaks, stay at current weight</div></div>
+    <div class="warning-block"><div class="warning-title">Stop or Reduce Load If</div><div class="warning-item">Neck tightens during or after exercise</div><div class="warning-item">Shoulders elevate and won't relax</div><div class="warning-item">Sharp joint pain at any point</div><div class="warning-item">Headaches increase</div><div class="warning-item">Smooth breathing throughout — holding breath means back off</div></div>
+  </div>
+</div>
+
+<!-- Bottom tab bar -->
+<div class="tabs" id="tabs">
+  <button class="tab active" data-tab="warmup">Warm-Up</button>
+  <button class="tab" data-tab="strength">Strength</button>
+  <button class="tab" data-tab="neck">Neck</button>
+  <button class="tab" data-tab="reset">Reset</button>
+  <button class="tab" data-tab="guide">Form</button>
+</div>
+
+<script>
+const IMG_BASE = 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises';
+const JSON_URL = 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/dist/exercises.json';
+
+// Tab switching
+document.getElementById('tabs').addEventListener('click', (e) => {
+  const btn = e.target.closest('.tab');
+  if (!btn) return;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('s-' + btn.dataset.tab).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'instant' });
+});
+
+// Load exercise images
+async function init() {
+  let exercises = [];
+  try {
+    const resp = await fetch(JSON_URL);
+    exercises = await resp.json();
+  } catch (e) {
+    console.warn('Could not load exercise DB, trying direct image paths');
+  }
+
+  const byId = {};
+  const byNameLower = {};
+  exercises.forEach(ex => {
+    byId[ex.id] = ex;
+    byNameLower[ex.name.toLowerCase().replace(/[^a-z0-9]/g, '_')] = ex;
+  });
+
+  document.querySelectorAll('.exercise-card[data-db]').forEach(card => {
+    const key = card.dataset.db;
+    let matched = byId[key];
+
+    // Fuzzy: try variations
+    if (!matched) {
+      const searchTerms = key.replace(/_/g, ' ').toLowerCase();
+      matched = exercises.find(ex => {
+        const n = ex.name.toLowerCase();
+        return n === searchTerms || n.includes(searchTerms) || searchTerms.includes(n);
+      });
+    }
+
+    if (matched && matched.images && matched.images.length >= 1) {
+      const url0 = `${IMG_BASE}/${matched.images[0]}`;
+      const url1 = matched.images.length >= 2 ? `${IMG_BASE}/${matched.images[1]}` : null;
+      injectImg(card, url0, url1);
+    } else {
+      // Try direct path as last resort
+      injectImg(card, `${IMG_BASE}/${key}/0.jpg`, `${IMG_BASE}/${key}/1.jpg`);
+    }
+  });
+
+  // Hide loader
+  setTimeout(() => document.getElementById('loader').classList.add('done'), 300);
+}
+
+function injectImg(card, url0, url1) {
+  const wrap = document.createElement('div');
+  wrap.className = 'exercise-img-wrap';
+  wrap.innerHTML = '<div class="img-loading">loading…</div>';
+
+  const imgA = new Image();
+  imgA.src = url0;
+  imgA.alt = 'Exercise position A';
+  imgA.style.opacity = '1';
+  imgA.onload = () => { wrap.querySelector('.img-loading')?.remove(); };
+  imgA.onerror = () => { wrap.innerHTML = '<div class="img-loading">no image</div>'; };
+  wrap.appendChild(imgA);
+
+  if (url1) {
+    const imgB = new Image();
+    imgB.src = url1;
+    imgB.alt = 'Exercise position B';
+    imgB.style.opacity = '0';
+    wrap.appendChild(imgB);
+
+    let frame = 0;
+    setInterval(() => {
+      frame = 1 - frame;
+      imgA.style.opacity = frame === 0 ? '1' : '0';
+      imgB.style.opacity = frame === 1 ? '1' : '0';
+    }, 1200);
+  }
+
+  card.insertBefore(wrap, card.firstChild);
+}
+
+// Register service worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(() => {});
+}
+
+init();
+</script>
+</body>
+</html>
