@@ -1,5 +1,4 @@
-const CACHE_NAME = 'workout-v1';
-const IMG_BASE = 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises';
+const CACHE_NAME = 'workout-v2';
 
 // App shell - cache immediately on install
 const APP_SHELL = [
@@ -25,25 +24,8 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Network-first for exercise JSON and images, cache-first for app shell
+// Cache-first for app shell and fonts
 self.addEventListener('fetch', (event) => {
-  const url = event.request.url;
-
-  // For exercise images and JSON: try network, fall back to cache
-  if (url.includes('raw.githubusercontent.com') || url.includes('exercises.json')) {
-    event.respondWith(
-      fetch(event.request)
-        .then((response) => {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
-          return response;
-        })
-        .catch(() => caches.match(event.request))
-    );
-    return;
-  }
-
-  // For fonts and app shell: cache-first
   event.respondWith(
     caches.match(event.request).then((cached) => {
       if (cached) return cached;
