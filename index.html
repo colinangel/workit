@@ -165,6 +165,23 @@
     display: flex; align-items: center; justify-content: center;
   }
   .set-manage-btn:active { background: var(--accent-bg); color: var(--accent); }
+  .set-group { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .rep-adj {
+    width: 38px; height: 20px; border-radius: 4px; border: 1px solid var(--border);
+    background: transparent; color: var(--dim); font-family: var(--mono);
+    font-size: 13px; font-weight: 700; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .rep-adj:active { background: var(--accent-bg); color: var(--accent); }
+  .set-weight-row { display: flex; align-items: center; gap: 2px; margin-top: 2px; }
+  .set-weight-adj {
+    width: 20px; height: 18px; border-radius: 3px; border: 1px solid var(--border);
+    background: transparent; color: var(--dim); font-family: var(--mono);
+    font-size: 10px; font-weight: 700; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .set-weight-adj:active { background: var(--accent-bg); color: var(--accent); }
+  .set-weight-display { font-size: 10px; color: var(--muted); min-width: 28px; text-align: center; font-weight: 700; }
   .set-btn {
     width: 38px; height: 38px; border-radius: 8px; border: 1px solid var(--border);
     background: var(--surface); color: var(--muted); font-family: var(--mono);
@@ -841,13 +858,14 @@ function formatDate(d) {
   return d.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
 }
 
-function updateSetLog(logKey, i, reps) {
+function updateSetLog(logKey, i, reps, weight) {
   const dk = dateKey();
   const log = getDateLog(dk);
   if (!log[logKey]) log[logKey] = { sets: [] };
   if (!log[logKey].sets[i]) log[logKey].sets[i] = { done: false };
   if (typeof log[logKey].sets[i] !== 'object') log[logKey].sets[i] = { done: !!log[logKey].sets[i] };
-  log[logKey].sets[i].reps = reps;
+  if (reps != null) log[logKey].sets[i].reps = reps;
+  if (weight != null) log[logKey].sets[i].weight = weight;
   saveDateLog(log, dk);
 }
 
@@ -1032,6 +1050,7 @@ function initTracking() {
         if (repInfo) {
           const saved = exLog.sets[i];
           const savedReps = (typeof saved === 'object' ? saved?.reps : null) ?? effectiveDefault;
+          const savedWeight = (typeof saved === 'object' ? saved?.weight : null) ?? (isWeighted ? exerciseWeight(name) : null);
           const isDone = typeof saved === 'object' ? !!saved?.done : !!saved;
           const group = document.createElement('div');
           group.className = 'set-group';
@@ -1049,8 +1068,12 @@ function initTracking() {
             if (!log[logKey]) log[logKey] = { sets: [] };
             const cur = log[logKey].sets[i];
             const wasDone = typeof cur === 'object' ? !!cur?.done : !!cur;
-            log[logKey].sets[i] = { reps: parseInt(btn.textContent), done: !wasDone };
-            if (isWeighted) log[logKey].weight = exerciseWeight(name);
+            const setData = { reps: parseInt(btn.textContent), done: !wasDone };
+            if (isWeighted) {
+              const wDisp = group.querySelector('.set-weight-display');
+              setData.weight = wDisp ? parseInt(wDisp.textContent) : exerciseWeight(name);
+            }
+            log[logKey].sets[i] = setData;
             saveDateLog(log, curDk);
             btn.classList.toggle('done');
             const currentReps = parseInt(btn.textContent);
@@ -1062,13 +1085,41 @@ function initTracking() {
           });
           plus.addEventListener('click', () => {
             let r = parseInt(btn.textContent);
-            if (r < repInfo.max) { btn.textContent = ++r; updateSetLog(logKey, i, r); setDefaultReps(logKey, r); }
+            if (r < repInfo.max) { btn.textContent = ++r; updateSetLog(logKey, i, r, null); setDefaultReps(logKey, r); }
           });
           minus.addEventListener('click', () => {
             let r = parseInt(btn.textContent);
-            if (r > repInfo.min) { btn.textContent = --r; updateSetLog(logKey, i, r); setDefaultReps(logKey, r); }
+            if (r > repInfo.min) { btn.textContent = --r; updateSetLog(logKey, i, r, null); setDefaultReps(logKey, r); }
           });
           group.appendChild(plus); group.appendChild(btn); group.appendChild(minus);
+
+          // Per-set weight controls for weighted exercises
+          if (isWeighted) {
+            const inc = exerciseIncrement(name);
+            const wRow = document.createElement('div');
+            wRow.className = 'set-weight-row';
+            const wMinus = document.createElement('button');
+            wMinus.className = 'set-weight-adj'; wMinus.textContent = '\u2212';
+            const wDisp = document.createElement('span');
+            wDisp.className = 'set-weight-display'; wDisp.textContent = savedWeight;
+            const wPlus = document.createElement('button');
+            wPlus.className = 'set-weight-adj'; wPlus.textContent = '+';
+            wMinus.addEventListener('click', () => {
+              let w = parseInt(wDisp.textContent);
+              w = Math.max(0, w - inc);
+              wDisp.textContent = w;
+              updateSetLog(logKey, i, null, w);
+            });
+            wPlus.addEventListener('click', () => {
+              let w = parseInt(wDisp.textContent);
+              w += inc;
+              wDisp.textContent = w;
+              updateSetLog(logKey, i, null, w);
+            });
+            wRow.appendChild(wMinus); wRow.appendChild(wDisp); wRow.appendChild(wPlus);
+            group.appendChild(wRow);
+          }
+
           const addBtn = setRow.querySelector('.set-add-btn');
           addBtn ? setRow.insertBefore(group, addBtn) : setRow.appendChild(group);
         } else {
@@ -1085,7 +1136,6 @@ function initTracking() {
             const cur = log[logKey].sets[i];
             const wasDone = typeof cur === 'object' ? !!cur?.done : !!cur;
             log[logKey].sets[i] = { done: !wasDone };
-            if (isWeighted) log[logKey].weight = exerciseWeight(name);
             saveDateLog(log, curDk);
             btn.classList.toggle('done');
             if (isWeighted && curDk === todayKey()) {
@@ -1234,6 +1284,8 @@ function renderProgress() {
           exDaySets++; totalSetsCompleted++; dayHasWork = true;
           const reps = (typeof s === 'object' ? s.reps : null) || 1;
           exDayReps += reps; totalReps += reps;
+          const setWeight = typeof s === 'object' ? s.weight : null;
+          if (setWeight != null) exerciseStats[exName].weights.push({ date: dk, weight: setWeight });
         }
       });
       if (exDaySets > 0) {
@@ -1241,7 +1293,9 @@ function renderProgress() {
         exerciseStats[exName].totalSets += exDaySets;
         exerciseStats[exName].totalReps += exDayReps;
         exerciseStats[exName].dates.push(dk);
-        if (entry.weight) exerciseStats[exName].weights.push({ date: dk, weight: entry.weight });
+        if (exerciseStats[exName].weights.length === 0 && entry.weight) {
+          exerciseStats[exName].weights.push({ date: dk, weight: entry.weight });
+        }
       }
     });
     if (dayHasWork) workoutDays++;
