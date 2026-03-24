@@ -157,7 +157,14 @@
     display: flex; align-items: center; justify-content: center; margin-left: auto;
   }
   .weight-settings-btn:active { color: var(--accent); }
-  .set-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .set-row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .set-manage-btn {
+    width: 28px; height: 28px; border-radius: 6px; border: 1px dashed var(--border);
+    background: transparent; color: var(--dim); font-family: var(--mono);
+    font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .set-manage-btn:active { background: var(--accent-bg); color: var(--accent); }
   .set-group { display: flex; flex-direction: column; align-items: center; gap: 2px; }
   .rep-adj {
     width: 38px; height: 20px; border-radius: 4px; border: 1px solid var(--border);
@@ -204,6 +211,96 @@
     text-align: center; font-size: 11px; color: var(--dim); padding: 12px 0 4px;
     font-family: var(--display); text-transform: uppercase; letter-spacing: 2px;
   }
+
+  /* Date navigation */
+  .date-nav {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 12px 0 4px;
+  }
+  .date-nav-btn {
+    width: 32px; height: 32px; border-radius: 6px; border: 1px solid var(--border);
+    background: transparent; color: var(--muted); font-size: 16px; font-weight: 700;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono);
+  }
+  .date-nav-btn:active { background: var(--accent-bg); color: var(--accent); }
+  .date-nav-label {
+    font-family: var(--display); font-size: 11px; color: var(--dim);
+    text-transform: uppercase; letter-spacing: 2px; min-width: 180px; text-align: center;
+    cursor: pointer;
+  }
+  .date-nav-label:active { color: var(--accent); }
+  .date-nav-today {
+    font-size: 10px; padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border);
+    background: transparent; color: var(--muted); font-family: var(--display);
+    cursor: pointer; text-transform: uppercase; letter-spacing: 1px;
+  }
+  .date-nav-today:active { background: var(--accent-bg); color: var(--accent); }
+  .date-nav-today.hidden { display: none; }
+
+  /* Week navigation */
+  .week-nav {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 4px 0 8px;
+  }
+  .week-day-btn {
+    width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--border);
+    background: transparent; color: var(--dim); font-family: var(--display);
+    font-size: 10px; font-weight: 700; cursor: pointer; text-transform: uppercase;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+  }
+  .week-day-btn .wd-num { font-size: 12px; color: var(--muted); }
+  .week-day-btn:active { background: var(--accent-bg); }
+  .week-day-btn.selected { background: var(--accent-bg); color: var(--accent); border-color: var(--accent); }
+  .week-day-btn.selected .wd-num { color: var(--accent); }
+  .week-day-btn.has-data { border-color: #333; }
+  .week-day-btn.has-data .wd-num { color: var(--text); }
+
+  /* Progress section */
+  .progress-period-tabs {
+    display: flex; gap: 4px; margin-bottom: 16px; flex-wrap: wrap;
+  }
+  .period-tab {
+    padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border);
+    background: transparent; color: var(--muted); font-family: var(--display);
+    font-size: 10px; font-weight: 700; cursor: pointer; text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .period-tab:active { background: var(--accent-bg); }
+  .period-tab.active { background: var(--accent-bg); color: var(--accent); border-color: var(--accent); }
+  .progress-card {
+    background: var(--surface); border-radius: 10px; border: 1px solid var(--border);
+    padding: 14px; margin-bottom: 10px;
+  }
+  .progress-card-title {
+    font-family: var(--display); font-size: 12px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; color: var(--accent);
+  }
+  .progress-stat-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 6px 0; font-size: 13px; color: var(--text);
+  }
+  .progress-stat-row + .progress-stat-row { border-top: 1px solid #1a1a1a; }
+  .progress-stat-label { color: var(--muted); font-size: 12px; }
+  .progress-stat-value { font-weight: 700; color: var(--text); }
+  .progress-stat-value.up { color: var(--green); }
+  .progress-stat-value.down { color: var(--red); }
+  .progress-stat-value.neutral { color: var(--muted); }
+  .progress-summary-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;
+  }
+  .progress-summary-item {
+    padding: 12px; background: #0d0d0d; border-radius: 8px; border: 1px solid var(--border);
+    text-align: center;
+  }
+  .progress-summary-number { font-size: 24px; font-weight: 700; color: var(--accent); }
+  .progress-summary-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+  .progress-exercise-history { margin-top: 8px; }
+  .progress-bar-row { display: flex; align-items: center; gap: 8px; padding: 4px 0; }
+  .progress-bar-date { font-size: 10px; color: var(--dim); min-width: 42px; font-family: var(--display); }
+  .progress-bar-track { flex: 1; height: 6px; background: #1a1a1a; border-radius: 3px; overflow: hidden; }
+  .progress-bar-fill { height: 100%; background: var(--accent); border-radius: 3px; transition: width 0.3s; }
+  .progress-bar-val { font-size: 10px; color: var(--muted); min-width: 30px; text-align: right; }
 
   @media (max-width: 480px) {
     .exercise-card { flex-direction: column; align-items: stretch; }
@@ -296,6 +393,14 @@
     </div>
   </div>
 
+  <!-- PROGRESS -->
+  <div class="section" id="s-progress">
+    <div class="section-sub" style="color:var(--green)">Overview</div>
+    <div class="section-title">Progress</div>
+    <div class="progress-period-tabs" id="period-tabs"></div>
+    <div id="progress-content"></div>
+  </div>
+
   <!-- GUIDE -->
   <div class="section" id="s-guide">
     <div class="section-sub" style="color:var(--orange)">Reference</div>
@@ -314,6 +419,7 @@
   <button class="tab" data-tab="strength">Strength</button>
   <button class="tab" data-tab="neck">Neck</button>
   <button class="tab" data-tab="reset">Reset</button>
+  <button class="tab" data-tab="progress">Progress</button>
   <button class="tab" data-tab="guide">Form</button>
 </div>
 
@@ -584,6 +690,7 @@ document.getElementById('tabs').addEventListener('click', (e) => {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.getElementById('s-' + btn.dataset.tab).classList.add('active');
   window.scrollTo({ top: 0, behavior: 'instant' });
+  if (btn.dataset.tab === 'progress') initProgress();
 });
 
 // Inject SVG illustrations into exercise cards
@@ -647,7 +754,7 @@ if ('serviceWorker' in navigator) {
 
 // ── Exercise Tracking System ──────────────────────────────────────────────
 
-const SECTION_SETS = { 's-warmup': 1, 's-strength': 3, 's-neck': 2, 's-reset': 1 };
+const DEFAULT_SECTION_SETS = { 's-warmup': 1, 's-strength': 3, 's-neck': 2, 's-reset': 1 };
 
 const WEIGHT_EXERCISES = {
   'Goblet Squat':         { defaultWeight: 15, increment: 5,   sessionsToProgress: 3 },
@@ -655,6 +762,53 @@ const WEIGHT_EXERCISES = {
   'Dumbbell / Band Rows': { defaultWeight: 10, increment: 2.5, sessionsToProgress: 3 },
   'Farmer Carry':         { defaultWeight: 15, increment: 5,   sessionsToProgress: 3 },
 };
+
+// ── Current viewing date ──
+let viewingDate = new Date();
+
+function dateKey(d) {
+  const dt = d || viewingDate;
+  return dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0') + '-' + String(dt.getDate()).padStart(2,'0');
+}
+function todayKey() { return dateKey(new Date()); }
+function isToday() { return dateKey() === todayKey(); }
+
+function loadJSON(k) { try { return JSON.parse(localStorage.getItem(k)) || {}; } catch { return {}; } }
+function saveJSON(k, v) { localStorage.setItem(k, JSON.stringify(v)); }
+
+function getDateLog(dk) { return loadJSON('wk_log')[dk || dateKey()] || {}; }
+function saveDateLog(log, dk) {
+  const all = loadJSON('wk_log');
+  all[dk || dateKey()] = log;
+  saveJSON('wk_log', all);
+}
+function getProgression() { return loadJSON('wk_prog'); }
+function saveProgression(p) { saveJSON('wk_prog', p); }
+
+// ── Per-exercise defaults (persisted set count & rep target) ──
+function getExerciseDefaults() { return loadJSON('wk_defaults'); }
+function saveExerciseDefaults(d) { saveJSON('wk_defaults', d); }
+
+function getNumSets(logKey, sectionId) {
+  const defaults = getExerciseDefaults();
+  return defaults[logKey]?.sets ?? DEFAULT_SECTION_SETS[sectionId] ?? 1;
+}
+function setNumSets(logKey, sectionId, n) {
+  const defaults = getExerciseDefaults();
+  if (!defaults[logKey]) defaults[logKey] = {};
+  defaults[logKey].sets = n;
+  saveExerciseDefaults(defaults);
+}
+function getDefaultReps(logKey, fallback) {
+  const defaults = getExerciseDefaults();
+  return defaults[logKey]?.defaultReps ?? fallback;
+}
+function setDefaultReps(logKey, reps) {
+  const defaults = getExerciseDefaults();
+  if (!defaults[logKey]) defaults[logKey] = {};
+  defaults[logKey].defaultReps = reps;
+  saveExerciseDefaults(defaults);
+}
 
 function parseReps(text) {
   if (!text) return null;
@@ -673,67 +827,131 @@ function parseReps(text) {
   return null;
 }
 
-function updateSetLog(logKey, i, reps) {
-  const log = getTodayLog();
-  if (!log[logKey]) log[logKey] = { sets: [] };
-  if (!log[logKey].sets[i]) log[logKey].sets[i] = { done: false };
-  if (typeof log[logKey].sets[i] !== 'object') log[logKey].sets[i] = { done: !!log[logKey].sets[i] };
-  log[logKey].sets[i].reps = reps;
-  saveTodayLog(log);
-}
-
-function todayKey() { return new Date().toISOString().slice(0, 10); }
-function loadJSON(k) { try { return JSON.parse(localStorage.getItem(k)) || {}; } catch { return {}; } }
-function saveJSON(k, v) { localStorage.setItem(k, JSON.stringify(v)); }
-
-function getTodayLog() { return loadJSON('wk_log')[todayKey()] || {}; }
-function saveTodayLog(log) {
-  const all = loadJSON('wk_log');
-  all[todayKey()] = log;
-  saveJSON('wk_log', all);
-}
-function getProgression() { return loadJSON('wk_prog'); }
-function saveProgression(p) { saveJSON('wk_prog', p); }
-
 function exerciseWeight(name) {
   const prog = getProgression();
   if (prog[name]?.currentWeight != null) return prog[name].currentWeight;
   return WEIGHT_EXERCISES[name]?.defaultWeight || 15;
 }
-
 function exerciseIncrement(name) {
   const prog = getProgression();
   return prog[name]?.increment ?? WEIGHT_EXERCISES[name]?.increment ?? 5;
 }
-
 function exerciseSessionsNeeded(name) {
   const prog = getProgression();
   return prog[name]?.sessionsToProgress ?? WEIGHT_EXERCISES[name]?.sessionsToProgress ?? 3;
 }
 
-// Format today's date for display
-function formatToday() {
-  const d = new Date();
+function formatDate(d) {
   return d.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
 }
 
+function updateSetLog(logKey, i, reps) {
+  const dk = dateKey();
+  const log = getDateLog(dk);
+  if (!log[logKey]) log[logKey] = { sets: [] };
+  if (!log[logKey].sets[i]) log[logKey].sets[i] = { done: false };
+  if (typeof log[logKey].sets[i] !== 'object') log[logKey].sets[i] = { done: !!log[logKey].sets[i] };
+  log[logKey].sets[i].reps = reps;
+  saveDateLog(log, dk);
+}
+
+// ── Date Navigation ──
+
+function navigateDate(offset) {
+  viewingDate = new Date(viewingDate);
+  viewingDate.setDate(viewingDate.getDate() + offset);
+  rebuildTracking();
+}
+function goToToday() { viewingDate = new Date(); rebuildTracking(); }
+function goToDate(d) { viewingDate = new Date(d); rebuildTracking(); }
+
+function getWeekDates() {
+  const d = new Date(viewingDate);
+  const day = d.getDay();
+  const mon = new Date(d);
+  mon.setDate(d.getDate() - ((day + 6) % 7));
+  const days = [];
+  for (let i = 0; i < 7; i++) {
+    const dd = new Date(mon);
+    dd.setDate(mon.getDate() + i);
+    days.push(dd);
+  }
+  return days;
+}
+
+function buildDateNav() {
+  const nav = document.createElement('div');
+  nav.className = 'date-nav';
+  const prev = document.createElement('button');
+  prev.className = 'date-nav-btn'; prev.textContent = '\u2039';
+  prev.addEventListener('click', () => navigateDate(-1));
+  const label = document.createElement('span');
+  label.className = 'date-nav-label'; label.textContent = formatDate(viewingDate);
+  label.addEventListener('click', goToToday);
+  const next = document.createElement('button');
+  next.className = 'date-nav-btn'; next.textContent = '\u203A';
+  next.addEventListener('click', () => navigateDate(1));
+  const todayBtn = document.createElement('button');
+  todayBtn.className = 'date-nav-today' + (isToday() ? ' hidden' : '');
+  todayBtn.textContent = 'Today';
+  todayBtn.addEventListener('click', goToToday);
+  nav.appendChild(prev); nav.appendChild(label); nav.appendChild(next); nav.appendChild(todayBtn);
+  return nav;
+}
+
+function buildWeekNav() {
+  const weekDates = getWeekDates();
+  const allLogs = loadJSON('wk_log');
+  const dayNames = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const nav = document.createElement('div');
+  nav.className = 'week-nav';
+  const prevWeek = document.createElement('button');
+  prevWeek.className = 'date-nav-btn'; prevWeek.textContent = '\u00AB'; prevWeek.style.fontSize = '12px';
+  prevWeek.addEventListener('click', () => navigateDate(-7));
+  nav.appendChild(prevWeek);
+  weekDates.forEach((wd, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'week-day-btn';
+    const dk = dateKey(wd);
+    if (dk === dateKey()) btn.classList.add('selected');
+    if (allLogs[dk] && Object.keys(allLogs[dk]).length > 0) btn.classList.add('has-data');
+    btn.innerHTML = `<span>${dayNames[i]}</span><span class="wd-num">${wd.getDate()}</span>`;
+    btn.addEventListener('click', () => goToDate(wd));
+    nav.appendChild(btn);
+  });
+  const nextWeek = document.createElement('button');
+  nextWeek.className = 'date-nav-btn'; nextWeek.textContent = '\u00BB'; nextWeek.style.fontSize = '12px';
+  nextWeek.addEventListener('click', () => navigateDate(7));
+  nav.appendChild(nextWeek);
+  return nav;
+}
+
+// ── Tracking ──
+
+function clearTracking() {
+  document.querySelectorAll('.date-nav, .week-nav, .day-label').forEach(el => el.remove());
+  document.querySelectorAll('.tracking').forEach(el => el.remove());
+}
+function rebuildTracking() {
+  clearTracking();
+  initTracking();
+  if (document.getElementById('s-progress').classList.contains('active')) renderProgress();
+}
+
 function initTracking() {
-  // Add day label to each trackable section
+  const dk = dateKey();
+
   document.querySelectorAll('.section').forEach(section => {
-    if (section.id === 's-guide') return;
+    if (section.id === 's-guide' || section.id === 's-progress') return;
     const list = section.querySelector('.exercise-list');
     if (!list) return;
-    const label = document.createElement('div');
-    label.className = 'day-label';
-    label.textContent = formatToday();
-    list.parentNode.insertBefore(label, list);
+    list.parentNode.insertBefore(buildDateNav(), list);
+    list.parentNode.insertBefore(buildWeekNav(), list);
   });
 
-  // Wire up each exercise card
   document.querySelectorAll('.section').forEach(section => {
     const sid = section.id;
-    if (sid === 's-guide') return;
-    const numSets = SECTION_SETS[sid] || 1;
+    if (sid === 's-guide' || sid === 's-progress') return;
 
     section.querySelectorAll('.exercise-card').forEach(card => {
       const nameEl = card.querySelector('.exercise-name');
@@ -741,18 +959,18 @@ function initTracking() {
       const name = nameEl.textContent.trim();
       const isWeighted = name in WEIGHT_EXERCISES;
       const logKey = sid + ':' + name;
+      const numSets = getNumSets(logKey, sid);
 
       const tracking = document.createElement('div');
       tracking.className = 'tracking';
 
-      const log = getTodayLog();
+      const log = getDateLog(dk);
       const exLog = log[logKey] || { sets: [] };
 
       // ── Weight controls ──
       if (isWeighted) {
         const weight = exerciseWeight(name);
         const inc = exerciseIncrement(name);
-
         const row = document.createElement('div');
         row.className = 'weight-row';
         row.innerHTML =
@@ -761,58 +979,42 @@ function initTracking() {
           `<button class="weight-btn" data-d="1">+</button>` +
           `<button class="weight-settings-btn" title="Settings">\u2699</button>`;
         tracking.appendChild(row);
-
         const display = row.querySelector('.weight-display');
-
         row.querySelectorAll('.weight-btn').forEach(btn => {
           btn.addEventListener('click', () => {
             const dir = parseInt(btn.dataset.d);
             const prog = getProgression();
             if (!prog[name]) prog[name] = { currentWeight: weight, sessionsCompleted: 0 };
-            const curInc = exerciseIncrement(name);
-            prog[name].currentWeight = Math.max(0, (prog[name].currentWeight ?? weight) + dir * curInc);
+            prog[name].currentWeight = Math.max(0, (prog[name].currentWeight ?? weight) + dir * exerciseIncrement(name));
             saveProgression(prog);
             display.textContent = prog[name].currentWeight + ' lb';
           });
         });
 
-        // ── Settings panel ──
         const panel = document.createElement('div');
         panel.className = 'settings-panel';
         panel.innerHTML =
-          `<div class="settings-row"><span>Increment</span>` +
-          `<div class="settings-value">` +
+          `<div class="settings-row"><span>Increment</span><div class="settings-value">` +
           `<button class="settings-adj" data-f="increment" data-d="-1">\u2212</button>` +
           `<span class="settings-num" data-f="increment">${inc} lb</span>` +
-          `<button class="settings-adj" data-f="increment" data-d="1">+</button>` +
-          `</div></div>` +
-          `<div class="settings-row"><span>Sessions to increase</span>` +
-          `<div class="settings-value">` +
+          `<button class="settings-adj" data-f="increment" data-d="1">+</button></div></div>` +
+          `<div class="settings-row"><span>Sessions to increase</span><div class="settings-value">` +
           `<button class="settings-adj" data-f="sessions" data-d="-1">\u2212</button>` +
           `<span class="settings-num" data-f="sessions">${exerciseSessionsNeeded(name)}</span>` +
-          `<button class="settings-adj" data-f="sessions" data-d="1">+</button>` +
-          `</div></div>` +
+          `<button class="settings-adj" data-f="sessions" data-d="1">+</button></div></div>` +
           `<div class="settings-row"><span>Sessions at weight</span>` +
-          `<span class="settings-num" style="color:var(--muted)">${(getProgression()[name]?.sessionsCompleted || 0)} / ${exerciseSessionsNeeded(name)}</span>` +
-          `</div>`;
+          `<span class="settings-num" style="color:var(--muted)">${(getProgression()[name]?.sessionsCompleted||0)} / ${exerciseSessionsNeeded(name)}</span></div>`;
         tracking.appendChild(panel);
-
-        row.querySelector('.weight-settings-btn').addEventListener('click', () => {
-          panel.classList.toggle('open');
-        });
-
+        row.querySelector('.weight-settings-btn').addEventListener('click', () => panel.classList.toggle('open'));
         panel.querySelectorAll('.settings-adj').forEach(btn => {
           btn.addEventListener('click', () => {
-            const field = btn.dataset.f;
-            const dir = parseInt(btn.dataset.d);
+            const field = btn.dataset.f, dir = parseInt(btn.dataset.d);
             const prog = getProgression();
             if (!prog[name]) prog[name] = { currentWeight: exerciseWeight(name), sessionsCompleted: 0 };
-
             if (field === 'increment') {
-              const step = 2.5;
-              prog[name].increment = Math.max(step, (prog[name].increment ?? exerciseIncrement(name)) + dir * step);
+              prog[name].increment = Math.max(2.5, (prog[name].increment ?? exerciseIncrement(name)) + dir * 2.5);
               panel.querySelector('.settings-num[data-f="increment"]').textContent = prog[name].increment + ' lb';
-            } else if (field === 'sessions') {
+            } else {
               prog[name].sessionsToProgress = Math.max(1, (prog[name].sessionsToProgress ?? exerciseSessionsNeeded(name)) + dir);
               panel.querySelector('.settings-num[data-f="sessions"]').textContent = prog[name].sessionsToProgress;
             }
@@ -821,88 +1023,120 @@ function initTracking() {
         });
       }
 
-      // ── Set buttons with rep counts ──
+      // ── Set buttons with rep counts + add/remove ──
       const repsEl = card.querySelector('.exercise-reps');
       const repsText = repsEl ? repsEl.textContent.trim() : '';
       const repInfo = parseReps(repsText);
+      const effectiveDefault = getDefaultReps(logKey, repInfo?.defaultReps);
 
       const setRow = document.createElement('div');
       setRow.className = 'set-row';
 
-      for (let i = 0; i < numSets; i++) {
+      function addSetUI(i) {
         if (repInfo) {
-          // Rep-based: show adjustable rep count per set
           const saved = exLog.sets[i];
-          const savedReps = (typeof saved === 'object' ? saved?.reps : null) ?? repInfo.defaultReps;
+          const savedReps = (typeof saved === 'object' ? saved?.reps : null) ?? effectiveDefault;
           const isDone = typeof saved === 'object' ? !!saved?.done : !!saved;
-
           const group = document.createElement('div');
           group.className = 'set-group';
-
           const plus = document.createElement('button');
-          plus.className = 'rep-adj';
-          plus.textContent = '+';
-
+          plus.className = 'rep-adj'; plus.textContent = '+';
           const btn = document.createElement('button');
           btn.className = 'set-btn' + (isDone ? ' done' : '');
           btn.textContent = savedReps;
-
           const minus = document.createElement('button');
-          minus.className = 'rep-adj';
-          minus.textContent = '\u2212';
+          minus.className = 'rep-adj'; minus.textContent = '\u2212';
 
           btn.addEventListener('click', () => {
-            const log = getTodayLog();
+            const curDk = dateKey();
+            const log = getDateLog(curDk);
             if (!log[logKey]) log[logKey] = { sets: [] };
             const cur = log[logKey].sets[i];
             const wasDone = typeof cur === 'object' ? !!cur?.done : !!cur;
             log[logKey].sets[i] = { reps: parseInt(btn.textContent), done: !wasDone };
             if (isWeighted) log[logKey].weight = exerciseWeight(name);
-            saveTodayLog(log);
+            saveDateLog(log, curDk);
             btn.classList.toggle('done');
-            if (isWeighted) {
-              const allDone = log[logKey].sets.filter(s => s?.done).length >= numSets;
+            const currentReps = parseInt(btn.textContent);
+            if (currentReps !== repInfo.defaultReps) setDefaultReps(logKey, currentReps);
+            if (isWeighted && curDk === todayKey()) {
+              const allDone = log[logKey].sets.filter(s => s?.done).length >= getNumSets(logKey, sid);
               if (allDone) recordSession(name);
             }
           });
-
           plus.addEventListener('click', () => {
             let r = parseInt(btn.textContent);
-            if (r < repInfo.max) { btn.textContent = ++r; updateSetLog(logKey, i, r); }
+            if (r < repInfo.max) { btn.textContent = ++r; updateSetLog(logKey, i, r); setDefaultReps(logKey, r); }
           });
           minus.addEventListener('click', () => {
             let r = parseInt(btn.textContent);
-            if (r > repInfo.min) { btn.textContent = --r; updateSetLog(logKey, i, r); }
+            if (r > repInfo.min) { btn.textContent = --r; updateSetLog(logKey, i, r); setDefaultReps(logKey, r); }
           });
-
-          group.appendChild(plus);
-          group.appendChild(btn);
-          group.appendChild(minus);
-          setRow.appendChild(group);
+          group.appendChild(plus); group.appendChild(btn); group.appendChild(minus);
+          const addBtn = setRow.querySelector('.set-add-btn');
+          addBtn ? setRow.insertBefore(group, addBtn) : setRow.appendChild(group);
         } else {
-          // Time/breath-based: simple done toggle
           const saved = exLog.sets[i];
           const isDone = typeof saved === 'object' ? !!saved?.done : !!saved;
+          const totalSets = getNumSets(logKey, sid);
           const btn = document.createElement('button');
           btn.className = 'set-btn' + (isDone ? ' done' : '');
-          btn.textContent = numSets === 1 ? '\u2713' : (i + 1);
+          btn.textContent = totalSets === 1 ? '\u2713' : (i + 1);
           btn.addEventListener('click', () => {
-            const log = getTodayLog();
+            const curDk = dateKey();
+            const log = getDateLog(curDk);
             if (!log[logKey]) log[logKey] = { sets: [] };
             const cur = log[logKey].sets[i];
             const wasDone = typeof cur === 'object' ? !!cur?.done : !!cur;
             log[logKey].sets[i] = { done: !wasDone };
-            saveTodayLog(log);
+            if (isWeighted) log[logKey].weight = exerciseWeight(name);
+            saveDateLog(log, curDk);
             btn.classList.toggle('done');
+            if (isWeighted && curDk === todayKey()) {
+              const allDone = log[logKey].sets.filter(s => s?.done).length >= getNumSets(logKey, sid);
+              if (allDone) recordSession(name);
+            }
           });
-          setRow.appendChild(btn);
+          const addBtn = setRow.querySelector('.set-add-btn');
+          addBtn ? setRow.insertBefore(btn, addBtn) : setRow.appendChild(btn);
         }
       }
+
+      for (let i = 0; i < numSets; i++) addSetUI(i);
+
+      // Add/remove set buttons
+      const addSetBtn = document.createElement('button');
+      addSetBtn.className = 'set-manage-btn set-add-btn';
+      addSetBtn.textContent = '+'; addSetBtn.title = 'Add set';
+      const removeSetBtn = document.createElement('button');
+      removeSetBtn.className = 'set-manage-btn';
+      removeSetBtn.textContent = '\u2212'; removeSetBtn.title = 'Remove set';
+      removeSetBtn.style.display = numSets <= 1 ? 'none' : 'flex';
+
+      addSetBtn.addEventListener('click', () => {
+        const n = getNumSets(logKey, sid) + 1;
+        setNumSets(logKey, sid, n);
+        addSetUI(n - 1);
+        removeSetBtn.style.display = 'flex';
+      });
+      removeSetBtn.addEventListener('click', () => {
+        const cur = getNumSets(logKey, sid);
+        if (cur <= 1) return;
+        setNumSets(logKey, sid, cur - 1);
+        const groups = setRow.querySelectorAll('.set-group');
+        const btns = setRow.querySelectorAll('.set-btn');
+        if (groups.length > 0) groups[groups.length - 1].remove();
+        else if (btns.length > 0) btns[btns.length - 1].remove();
+        const curDk = dateKey();
+        const log = getDateLog(curDk);
+        if (log[logKey]?.sets) { log[logKey].sets.length = cur - 1; saveDateLog(log, curDk); }
+        if (cur - 1 <= 1) removeSetBtn.style.display = 'none';
+      });
+      setRow.appendChild(addSetBtn);
+      setRow.appendChild(removeSetBtn);
       tracking.appendChild(setRow);
 
-      // ── Show progression hint if ready ──
       if (isWeighted) showProgressionHint(name, tracking);
-
       card.querySelector('.exercise-info').appendChild(tracking);
     });
   });
@@ -912,7 +1146,7 @@ function recordSession(name) {
   const prog = getProgression();
   if (!prog[name]) prog[name] = { currentWeight: exerciseWeight(name), sessionsCompleted: 0 };
   const today = todayKey();
-  if (prog[name].lastSessionDate === today) return; // already counted today
+  if (prog[name].lastSessionDate === today) return;
   prog[name].sessionsCompleted = (prog[name].sessionsCompleted || 0) + 1;
   prog[name].lastSessionDate = today;
   saveProgression(prog);
@@ -924,7 +1158,6 @@ function showProgressionHint(name, tracking) {
   const needed = exerciseSessionsNeeded(name);
   const completed = p?.sessionsCompleted || 0;
   if (completed < needed) return;
-
   const inc = exerciseIncrement(name);
   const hint = document.createElement('div');
   hint.className = 'progression-hint';
@@ -940,6 +1173,156 @@ function showProgressionHint(name, tracking) {
     if (wd) wd.textContent = prog[name].currentWeight + ' lb';
   });
   tracking.appendChild(hint);
+}
+
+// ── Progress Section ──
+
+const PERIODS = [
+  { key: 'week', label: 'This Week', days: 7 },
+  { key: 'month', label: 'This Month', days: 30 },
+  { key: '3mo', label: '3 Months', days: 90 },
+  { key: '6mo', label: '6 Months', days: 180 },
+  { key: 'year', label: '1 Year', days: 365 },
+  { key: 'all', label: 'All Time', days: 99999 },
+];
+let activePeriod = 'week';
+
+function initProgress() {
+  const tabsEl = document.getElementById('period-tabs');
+  tabsEl.innerHTML = '';
+  PERIODS.forEach(p => {
+    const btn = document.createElement('button');
+    btn.className = 'period-tab' + (p.key === activePeriod ? ' active' : '');
+    btn.textContent = p.label;
+    btn.addEventListener('click', () => {
+      activePeriod = p.key;
+      tabsEl.querySelectorAll('.period-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      renderProgress();
+    });
+    tabsEl.appendChild(btn);
+  });
+  renderProgress();
+}
+
+function renderProgress() {
+  const container = document.getElementById('progress-content');
+  container.innerHTML = '';
+  const period = PERIODS.find(p => p.key === activePeriod);
+  const allLogs = loadJSON('wk_log');
+  const today = new Date();
+  const cutoff = new Date(today);
+  cutoff.setDate(today.getDate() - period.days);
+
+  const periodDates = Object.keys(allLogs).filter(dk => {
+    const d = new Date(dk + 'T00:00:00');
+    return d >= cutoff && d <= today;
+  }).sort();
+
+  let workoutDays = 0, totalSetsCompleted = 0, totalReps = 0;
+  const exerciseStats = {};
+
+  periodDates.forEach(dk => {
+    const dayLog = allLogs[dk];
+    let dayHasWork = false;
+    Object.keys(dayLog).forEach(logKey => {
+      const entry = dayLog[logKey];
+      if (!entry?.sets) return;
+      const exName = logKey.split(':').slice(1).join(':');
+      if (!exerciseStats[exName]) exerciseStats[exName] = { sessions: 0, totalSets: 0, totalReps: 0, weights: [], dates: [] };
+      let exDaySets = 0, exDayReps = 0;
+      entry.sets.forEach(s => {
+        if (!s) return;
+        const isDone = typeof s === 'object' ? !!s.done : !!s;
+        if (isDone) {
+          exDaySets++; totalSetsCompleted++; dayHasWork = true;
+          const reps = (typeof s === 'object' ? s.reps : null) || 1;
+          exDayReps += reps; totalReps += reps;
+        }
+      });
+      if (exDaySets > 0) {
+        exerciseStats[exName].sessions++;
+        exerciseStats[exName].totalSets += exDaySets;
+        exerciseStats[exName].totalReps += exDayReps;
+        exerciseStats[exName].dates.push(dk);
+        if (entry.weight) exerciseStats[exName].weights.push({ date: dk, weight: entry.weight });
+      }
+    });
+    if (dayHasWork) workoutDays++;
+  });
+
+  // Summary grid
+  const grid = document.createElement('div');
+  grid.className = 'progress-summary-grid';
+  grid.innerHTML =
+    `<div class="progress-summary-item"><div class="progress-summary-number">${workoutDays}</div><div class="progress-summary-label">Workout Days</div></div>` +
+    `<div class="progress-summary-item"><div class="progress-summary-number">${totalSetsCompleted}</div><div class="progress-summary-label">Sets Done</div></div>` +
+    `<div class="progress-summary-item"><div class="progress-summary-number">${totalReps}</div><div class="progress-summary-label">Total Reps</div></div>` +
+    `<div class="progress-summary-item"><div class="progress-summary-number">${Object.keys(exerciseStats).length}</div><div class="progress-summary-label">Exercises</div></div>`;
+  container.appendChild(grid);
+
+  const exerciseNames = Object.keys(exerciseStats).sort((a, b) => exerciseStats[b].sessions - exerciseStats[a].sessions);
+
+  if (exerciseNames.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'progress-card';
+    empty.innerHTML = '<div style="text-align:center;color:var(--dim);padding:20px;font-size:13px;">No workouts logged in this period yet.</div>';
+    container.appendChild(empty);
+    return;
+  }
+
+  exerciseNames.forEach(exName => {
+    const stats = exerciseStats[exName];
+    const card = document.createElement('div');
+    card.className = 'progress-card';
+    const isW = exName in WEIGHT_EXERCISES;
+    let weightHTML = '';
+    if (isW && stats.weights.length > 0) {
+      const firstW = stats.weights[0].weight, lastW = stats.weights[stats.weights.length - 1].weight;
+      const diff = lastW - firstW;
+      const cls = diff > 0 ? 'up' : diff < 0 ? 'down' : 'neutral';
+      const sign = diff > 0 ? '+' : '';
+      weightHTML = `<div class="progress-stat-row"><span class="progress-stat-label">Current weight</span><span class="progress-stat-value">${lastW} lb</span></div>`;
+      if (stats.weights.length > 1) weightHTML += `<div class="progress-stat-row"><span class="progress-stat-label">Weight change</span><span class="progress-stat-value ${cls}">${sign}${diff} lb</span></div>`;
+    }
+    // Mini history bars
+    let histHTML = '';
+    const recent = stats.dates.slice(-8);
+    if (recent.length > 0) {
+      const maxR = Math.max(...recent.map(dk => {
+        let r = 0;
+        Object.keys(allLogs[dk]).forEach(lk => {
+          if (lk.endsWith(':' + exName)) (allLogs[dk][lk].sets || []).forEach(s => {
+            if (!s) return;
+            const done = typeof s === 'object' ? !!s.done : !!s;
+            if (done) r += (typeof s === 'object' ? s.reps : null) || 1;
+          });
+        });
+        return r;
+      }));
+      histHTML = '<div class="progress-exercise-history">';
+      recent.forEach(dk => {
+        let dayR = 0;
+        Object.keys(allLogs[dk]).forEach(lk => {
+          if (lk.endsWith(':' + exName)) (allLogs[dk][lk].sets || []).forEach(s => {
+            if (!s) return;
+            const done = typeof s === 'object' ? !!s.done : !!s;
+            if (done) dayR += (typeof s === 'object' ? s.reps : null) || 1;
+          });
+        });
+        const pct = maxR > 0 ? (dayR / maxR * 100) : 0;
+        histHTML += `<div class="progress-bar-row"><span class="progress-bar-date">${dk.slice(5)}</span><div class="progress-bar-track"><div class="progress-bar-fill" style="width:${pct}%"></div></div><span class="progress-bar-val">${dayR}r</span></div>`;
+      });
+      histHTML += '</div>';
+    }
+    card.innerHTML =
+      `<div class="progress-card-title">${exName}</div>` +
+      `<div class="progress-stat-row"><span class="progress-stat-label">Sessions</span><span class="progress-stat-value">${stats.sessions}</span></div>` +
+      `<div class="progress-stat-row"><span class="progress-stat-label">Total sets</span><span class="progress-stat-value">${stats.totalSets}</span></div>` +
+      `<div class="progress-stat-row"><span class="progress-stat-label">Total reps</span><span class="progress-stat-value">${stats.totalReps}</span></div>` +
+      weightHTML + histHTML;
+    container.appendChild(card);
+  });
 }
 
 init();
