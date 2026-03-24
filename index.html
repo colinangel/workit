@@ -140,6 +140,63 @@
   .loader.done { opacity: 0; pointer-events: none; }
   .loader-text { font-family: var(--display); font-size: 12px; color: var(--dim); text-transform: uppercase; letter-spacing: 3px; }
 
+  /* Tracking controls */
+  .tracking { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+  .weight-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .weight-btn {
+    width: 34px; height: 34px; border-radius: 6px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text); font-size: 18px; font-weight: 700;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); transition: background 0.15s;
+  }
+  .weight-btn:active { background: var(--accent-bg); }
+  .weight-display { font-size: 16px; font-weight: 700; color: var(--accent); min-width: 56px; text-align: center; }
+  .weight-settings-btn {
+    width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--border);
+    background: transparent; color: var(--dim); font-size: 14px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; margin-left: auto;
+  }
+  .weight-settings-btn:active { color: var(--accent); }
+  .set-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .set-btn {
+    width: 38px; height: 38px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--muted); font-family: var(--mono);
+    font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.15s;
+  }
+  .set-btn.done { background: var(--accent); color: #000; border-color: var(--accent); }
+  .set-btn:active { transform: scale(0.92); }
+  .progression-hint {
+    margin-top: 8px; padding: 6px 10px; font-size: 11px; color: var(--green);
+    background: var(--green-bg); border: 1px solid var(--green-border); border-radius: 6px;
+    cursor: pointer; display: flex; align-items: center; gap: 6px;
+  }
+  .progression-hint:active { opacity: 0.7; }
+  .settings-panel {
+    margin-top: 8px; padding: 10px; background: #0d0d0d; border-radius: 8px;
+    border: 1px solid var(--border); display: none;
+  }
+  .settings-panel.open { display: block; }
+  .settings-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 6px 0; font-size: 12px; color: var(--muted);
+  }
+  .settings-row + .settings-row { border-top: 1px solid #1a1a1a; }
+  .settings-value {
+    display: flex; align-items: center; gap: 6px;
+  }
+  .settings-adj {
+    width: 26px; height: 26px; border-radius: 4px; border: 1px solid var(--border);
+    background: transparent; color: var(--text); font-size: 14px; font-weight: 700;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono);
+  }
+  .settings-adj:active { background: var(--accent-bg); }
+  .settings-num { min-width: 36px; text-align: center; font-weight: 700; color: var(--text); }
+  .day-label {
+    text-align: center; font-size: 11px; color: var(--dim); padding: 12px 0 4px;
+    font-family: var(--display); text-transform: uppercase; letter-spacing: 2px;
+  }
+
   @media (max-width: 480px) {
     .exercise-card { flex-direction: column; align-items: stretch; }
     .exercise-img-wrap, .cue-box { width: 100%; height: 200px; }
@@ -580,7 +637,226 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js').catch(() => {});
 }
 
+// ── Exercise Tracking System ──────────────────────────────────────────────
+
+const SECTION_SETS = { 's-warmup': 1, 's-strength': 3, 's-neck': 2, 's-reset': 1 };
+
+const WEIGHT_EXERCISES = {
+  'Goblet Squat':         { defaultWeight: 15, increment: 5,   sessionsToProgress: 3 },
+  'Romanian Deadlift':    { defaultWeight: 15, increment: 5,   sessionsToProgress: 3 },
+  'Dumbbell / Band Rows': { defaultWeight: 10, increment: 2.5, sessionsToProgress: 3 },
+  'Farmer Carry':         { defaultWeight: 15, increment: 5,   sessionsToProgress: 3 },
+};
+
+function todayKey() { return new Date().toISOString().slice(0, 10); }
+function loadJSON(k) { try { return JSON.parse(localStorage.getItem(k)) || {}; } catch { return {}; } }
+function saveJSON(k, v) { localStorage.setItem(k, JSON.stringify(v)); }
+
+function getTodayLog() { return loadJSON('wk_log')[todayKey()] || {}; }
+function saveTodayLog(log) {
+  const all = loadJSON('wk_log');
+  all[todayKey()] = log;
+  saveJSON('wk_log', all);
+}
+function getProgression() { return loadJSON('wk_prog'); }
+function saveProgression(p) { saveJSON('wk_prog', p); }
+
+function exerciseWeight(name) {
+  const prog = getProgression();
+  if (prog[name]?.currentWeight != null) return prog[name].currentWeight;
+  return WEIGHT_EXERCISES[name]?.defaultWeight || 15;
+}
+
+function exerciseIncrement(name) {
+  const prog = getProgression();
+  return prog[name]?.increment ?? WEIGHT_EXERCISES[name]?.increment ?? 5;
+}
+
+function exerciseSessionsNeeded(name) {
+  const prog = getProgression();
+  return prog[name]?.sessionsToProgress ?? WEIGHT_EXERCISES[name]?.sessionsToProgress ?? 3;
+}
+
+// Format today's date for display
+function formatToday() {
+  const d = new Date();
+  return d.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+}
+
+function initTracking() {
+  // Add day label to each trackable section
+  document.querySelectorAll('.section').forEach(section => {
+    if (section.id === 's-guide') return;
+    const list = section.querySelector('.exercise-list');
+    if (!list) return;
+    const label = document.createElement('div');
+    label.className = 'day-label';
+    label.textContent = formatToday();
+    list.parentNode.insertBefore(label, list);
+  });
+
+  // Wire up each exercise card
+  document.querySelectorAll('.section').forEach(section => {
+    const sid = section.id;
+    if (sid === 's-guide') return;
+    const numSets = SECTION_SETS[sid] || 1;
+
+    section.querySelectorAll('.exercise-card').forEach(card => {
+      const nameEl = card.querySelector('.exercise-name');
+      if (!nameEl) return;
+      const name = nameEl.textContent.trim();
+      const isWeighted = name in WEIGHT_EXERCISES;
+      const logKey = sid + ':' + name;
+
+      const tracking = document.createElement('div');
+      tracking.className = 'tracking';
+
+      const log = getTodayLog();
+      const exLog = log[logKey] || { sets: [] };
+
+      // ── Weight controls ──
+      if (isWeighted) {
+        const weight = exerciseWeight(name);
+        const inc = exerciseIncrement(name);
+
+        const row = document.createElement('div');
+        row.className = 'weight-row';
+        row.innerHTML =
+          `<button class="weight-btn" data-d="-1">\u2212</button>` +
+          `<span class="weight-display">${weight} lb</span>` +
+          `<button class="weight-btn" data-d="1">+</button>` +
+          `<button class="weight-settings-btn" title="Settings">\u2699</button>`;
+        tracking.appendChild(row);
+
+        const display = row.querySelector('.weight-display');
+
+        row.querySelectorAll('.weight-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const dir = parseInt(btn.dataset.d);
+            const prog = getProgression();
+            if (!prog[name]) prog[name] = { currentWeight: weight, sessionsCompleted: 0 };
+            const curInc = exerciseIncrement(name);
+            prog[name].currentWeight = Math.max(0, (prog[name].currentWeight ?? weight) + dir * curInc);
+            saveProgression(prog);
+            display.textContent = prog[name].currentWeight + ' lb';
+          });
+        });
+
+        // ── Settings panel ──
+        const panel = document.createElement('div');
+        panel.className = 'settings-panel';
+        panel.innerHTML =
+          `<div class="settings-row"><span>Increment</span>` +
+          `<div class="settings-value">` +
+          `<button class="settings-adj" data-f="increment" data-d="-1">\u2212</button>` +
+          `<span class="settings-num" data-f="increment">${inc} lb</span>` +
+          `<button class="settings-adj" data-f="increment" data-d="1">+</button>` +
+          `</div></div>` +
+          `<div class="settings-row"><span>Sessions to increase</span>` +
+          `<div class="settings-value">` +
+          `<button class="settings-adj" data-f="sessions" data-d="-1">\u2212</button>` +
+          `<span class="settings-num" data-f="sessions">${exerciseSessionsNeeded(name)}</span>` +
+          `<button class="settings-adj" data-f="sessions" data-d="1">+</button>` +
+          `</div></div>` +
+          `<div class="settings-row"><span>Sessions at weight</span>` +
+          `<span class="settings-num" style="color:var(--muted)">${(getProgression()[name]?.sessionsCompleted || 0)} / ${exerciseSessionsNeeded(name)}</span>` +
+          `</div>`;
+        tracking.appendChild(panel);
+
+        row.querySelector('.weight-settings-btn').addEventListener('click', () => {
+          panel.classList.toggle('open');
+        });
+
+        panel.querySelectorAll('.settings-adj').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const field = btn.dataset.f;
+            const dir = parseInt(btn.dataset.d);
+            const prog = getProgression();
+            if (!prog[name]) prog[name] = { currentWeight: exerciseWeight(name), sessionsCompleted: 0 };
+
+            if (field === 'increment') {
+              const step = 2.5;
+              prog[name].increment = Math.max(step, (prog[name].increment ?? exerciseIncrement(name)) + dir * step);
+              panel.querySelector('.settings-num[data-f="increment"]').textContent = prog[name].increment + ' lb';
+            } else if (field === 'sessions') {
+              prog[name].sessionsToProgress = Math.max(1, (prog[name].sessionsToProgress ?? exerciseSessionsNeeded(name)) + dir);
+              panel.querySelector('.settings-num[data-f="sessions"]').textContent = prog[name].sessionsToProgress;
+            }
+            saveProgression(prog);
+          });
+        });
+      }
+
+      // ── Set buttons ──
+      const setRow = document.createElement('div');
+      setRow.className = 'set-row';
+
+      for (let i = 0; i < numSets; i++) {
+        const btn = document.createElement('button');
+        btn.className = 'set-btn' + (exLog.sets[i] ? ' done' : '');
+        btn.textContent = numSets === 1 ? '\u2713' : (i + 1);
+        btn.addEventListener('click', () => {
+          const log = getTodayLog();
+          if (!log[logKey]) log[logKey] = { sets: [] };
+          log[logKey].sets[i] = !log[logKey].sets[i];
+          if (isWeighted) log[logKey].weight = exerciseWeight(name);
+          saveTodayLog(log);
+          btn.classList.toggle('done');
+
+          // Check progression after all sets done
+          if (isWeighted) {
+            const allDone = log[logKey].sets.filter(Boolean).length >= numSets;
+            if (allDone) recordSession(name, tracking);
+          }
+        });
+        setRow.appendChild(btn);
+      }
+      tracking.appendChild(setRow);
+
+      // ── Show progression hint if ready ──
+      if (isWeighted) showProgressionHint(name, tracking);
+
+      card.querySelector('.exercise-info').appendChild(tracking);
+    });
+  });
+}
+
+function recordSession(name) {
+  const prog = getProgression();
+  if (!prog[name]) prog[name] = { currentWeight: exerciseWeight(name), sessionsCompleted: 0 };
+  const today = todayKey();
+  if (prog[name].lastSessionDate === today) return; // already counted today
+  prog[name].sessionsCompleted = (prog[name].sessionsCompleted || 0) + 1;
+  prog[name].lastSessionDate = today;
+  saveProgression(prog);
+}
+
+function showProgressionHint(name, tracking) {
+  const prog = getProgression();
+  const p = prog[name];
+  const needed = exerciseSessionsNeeded(name);
+  const completed = p?.sessionsCompleted || 0;
+  if (completed < needed) return;
+
+  const inc = exerciseIncrement(name);
+  const hint = document.createElement('div');
+  hint.className = 'progression-hint';
+  hint.textContent = `\u2191 Ready to increase (+${inc} lb) \u2014 tap to apply`;
+  hint.addEventListener('click', () => {
+    const prog = getProgression();
+    if (!prog[name]) prog[name] = {};
+    prog[name].currentWeight = (prog[name].currentWeight ?? WEIGHT_EXERCISES[name].defaultWeight) + inc;
+    prog[name].sessionsCompleted = 0;
+    saveProgression(prog);
+    hint.remove();
+    const wd = tracking.querySelector('.weight-display');
+    if (wd) wd.textContent = prog[name].currentWeight + ' lb';
+  });
+  tracking.appendChild(hint);
+}
+
 init();
+initTracking();
 </script>
 </body>
 </html>
