@@ -158,10 +158,18 @@
   }
   .weight-settings-btn:active { color: var(--accent); }
   .set-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .set-group { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .rep-adj {
+    width: 38px; height: 20px; border-radius: 4px; border: 1px solid var(--border);
+    background: transparent; color: var(--dim); font-family: var(--mono);
+    font-size: 13px; font-weight: 700; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .rep-adj:active { background: var(--accent-bg); color: var(--accent); }
   .set-btn {
     width: 38px; height: 38px; border-radius: 8px; border: 1px solid var(--border);
     background: var(--surface); color: var(--muted); font-family: var(--mono);
-    font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.15s;
+    font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.15s;
   }
   .set-btn.done { background: var(--accent); color: #000; border-color: var(--accent); }
   .set-btn:active { transform: scale(0.92); }
@@ -648,6 +656,32 @@ const WEIGHT_EXERCISES = {
   'Farmer Carry':         { defaultWeight: 15, increment: 5,   sessionsToProgress: 3 },
 };
 
+function parseReps(text) {
+  if (!text) return null;
+  const t = text.toLowerCase();
+  if (t.includes('sec') || t.includes('breath')) return null;
+  const range = t.match(/(\d+)\s*[–\-]\s*(\d+)/);
+  if (range) {
+    const lo = parseInt(range[1]), hi = parseInt(range[2]);
+    return { defaultReps: lo, min: Math.max(1, lo - 4), max: hi + 4 };
+  }
+  const single = t.match(/(\d+)/);
+  if (single) {
+    const n = parseInt(single[1]);
+    return { defaultReps: n, min: Math.max(1, n - 4), max: n + 6 };
+  }
+  return null;
+}
+
+function updateSetLog(logKey, i, reps) {
+  const log = getTodayLog();
+  if (!log[logKey]) log[logKey] = { sets: [] };
+  if (!log[logKey].sets[i]) log[logKey].sets[i] = { done: false };
+  if (typeof log[logKey].sets[i] !== 'object') log[logKey].sets[i] = { done: !!log[logKey].sets[i] };
+  log[logKey].sets[i].reps = reps;
+  saveTodayLog(log);
+}
+
 function todayKey() { return new Date().toISOString().slice(0, 10); }
 function loadJSON(k) { try { return JSON.parse(localStorage.getItem(k)) || {}; } catch { return {}; } }
 function saveJSON(k, v) { localStorage.setItem(k, JSON.stringify(v)); }
@@ -787,29 +821,82 @@ function initTracking() {
         });
       }
 
-      // ── Set buttons ──
+      // ── Set buttons with rep counts ──
+      const repsEl = card.querySelector('.exercise-reps');
+      const repsText = repsEl ? repsEl.textContent.trim() : '';
+      const repInfo = parseReps(repsText);
+
       const setRow = document.createElement('div');
       setRow.className = 'set-row';
 
       for (let i = 0; i < numSets; i++) {
-        const btn = document.createElement('button');
-        btn.className = 'set-btn' + (exLog.sets[i] ? ' done' : '');
-        btn.textContent = numSets === 1 ? '\u2713' : (i + 1);
-        btn.addEventListener('click', () => {
-          const log = getTodayLog();
-          if (!log[logKey]) log[logKey] = { sets: [] };
-          log[logKey].sets[i] = !log[logKey].sets[i];
-          if (isWeighted) log[logKey].weight = exerciseWeight(name);
-          saveTodayLog(log);
-          btn.classList.toggle('done');
+        if (repInfo) {
+          // Rep-based: show adjustable rep count per set
+          const saved = exLog.sets[i];
+          const savedReps = (typeof saved === 'object' ? saved?.reps : null) ?? repInfo.defaultReps;
+          const isDone = typeof saved === 'object' ? !!saved?.done : !!saved;
 
-          // Check progression after all sets done
-          if (isWeighted) {
-            const allDone = log[logKey].sets.filter(Boolean).length >= numSets;
-            if (allDone) recordSession(name, tracking);
-          }
-        });
-        setRow.appendChild(btn);
+          const group = document.createElement('div');
+          group.className = 'set-group';
+
+          const plus = document.createElement('button');
+          plus.className = 'rep-adj';
+          plus.textContent = '+';
+
+          const btn = document.createElement('button');
+          btn.className = 'set-btn' + (isDone ? ' done' : '');
+          btn.textContent = savedReps;
+
+          const minus = document.createElement('button');
+          minus.className = 'rep-adj';
+          minus.textContent = '\u2212';
+
+          btn.addEventListener('click', () => {
+            const log = getTodayLog();
+            if (!log[logKey]) log[logKey] = { sets: [] };
+            const cur = log[logKey].sets[i];
+            const wasDone = typeof cur === 'object' ? !!cur?.done : !!cur;
+            log[logKey].sets[i] = { reps: parseInt(btn.textContent), done: !wasDone };
+            if (isWeighted) log[logKey].weight = exerciseWeight(name);
+            saveTodayLog(log);
+            btn.classList.toggle('done');
+            if (isWeighted) {
+              const allDone = log[logKey].sets.filter(s => s?.done).length >= numSets;
+              if (allDone) recordSession(name);
+            }
+          });
+
+          plus.addEventListener('click', () => {
+            let r = parseInt(btn.textContent);
+            if (r < repInfo.max) { btn.textContent = ++r; updateSetLog(logKey, i, r); }
+          });
+          minus.addEventListener('click', () => {
+            let r = parseInt(btn.textContent);
+            if (r > repInfo.min) { btn.textContent = --r; updateSetLog(logKey, i, r); }
+          });
+
+          group.appendChild(plus);
+          group.appendChild(btn);
+          group.appendChild(minus);
+          setRow.appendChild(group);
+        } else {
+          // Time/breath-based: simple done toggle
+          const saved = exLog.sets[i];
+          const isDone = typeof saved === 'object' ? !!saved?.done : !!saved;
+          const btn = document.createElement('button');
+          btn.className = 'set-btn' + (isDone ? ' done' : '');
+          btn.textContent = numSets === 1 ? '\u2713' : (i + 1);
+          btn.addEventListener('click', () => {
+            const log = getTodayLog();
+            if (!log[logKey]) log[logKey] = { sets: [] };
+            const cur = log[logKey].sets[i];
+            const wasDone = typeof cur === 'object' ? !!cur?.done : !!cur;
+            log[logKey].sets[i] = { done: !wasDone };
+            saveTodayLog(log);
+            btn.classList.toggle('done');
+          });
+          setRow.appendChild(btn);
+        }
       }
       tracking.appendChild(setRow);
 
