@@ -1,4 +1,4 @@
-const CACHE_NAME = 'workout-v3';
+const CACHE_NAME = 'workout-v5';
 
 // App shell - cache immediately on install
 const APP_SHELL = [
